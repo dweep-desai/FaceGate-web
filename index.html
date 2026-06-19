@@ -84,8 +84,8 @@
                         </div>
                         <div class="terminal-body">
                             <span class="terminal-prompt">$</span>
-                            <code class="terminal-code">brew install --cask --no-quarantine dweep-desai/tap/facegate</code>
-                            <button class="btn-copy" aria-label="Copy Homebrew Command">
+                            <code class="terminal-code">curl -fsSL https://raw.githubusercontent.com/dweep-desai/FaceGate-Mac/main/install.sh | bash</code>
+                            <button class="btn-copy" aria-label="Copy Install Command">
                                 <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                 <svg class="icon-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             </button>
@@ -240,38 +240,15 @@
 
                 <div class="install-tabs-wrapper scroll-reveal delay-1">
                     <div class="tab-headers">
-                        <button class="tab-btn active" data-tab="brew">Homebrew</button>
-                        <button class="tab-btn" data-tab="script">Automated Script</button>
+                        <button class="tab-btn active" data-tab="script">Automated Script</button>
                         <button class="tab-btn" data-tab="dmg">Manual DMG</button>
+                        <button class="tab-btn" data-tab="brew">Homebrew</button>
                     </div>
 
                     <div class="tab-contents">
-                        <!-- Tab: Brew -->
-                        <div class="tab-content active" id="tab-brew">
-                            <p class="tab-description">If you use Homebrew, you can install the application using our custom tap:</p>
-                            <div class="terminal-block">
-                                <div class="terminal-header">
-                                    <div class="terminal-dots">
-                                        <span class="dot red"></span>
-                                        <span class="dot yellow"></span>
-                                        <span class="dot green"></span>
-                                    </div>
-                                    <span class="terminal-title">Terminal</span>
-                                </div>
-                                <div class="terminal-body">
-                                    <span class="terminal-prompt">$</span>
-                                    <code class="terminal-code">brew install --cask --no-quarantine dweep-desai/tap/facegate</code>
-                                    <button class="btn-copy-tab" aria-label="Copy Command">
-                                        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        <svg class="icon-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Tab: Script -->
-                        <div class="tab-content" id="tab-script">
-                            <p class="tab-description">The simplest way to install. Download, verify, and initialize the system automatically with one command:</p>
+                        <div class="tab-content active" id="tab-script">
+                            <p class="tab-description">The simplest and recommended way to install. Download, verify, and initialize the system automatically with one command:</p>
                             <div class="terminal-block">
                                 <div class="terminal-header">
                                     <div class="terminal-dots">
@@ -313,12 +290,45 @@
                                     </div>
                                     <div class="step-item">
                                         <div class="step-number">3</div>
-                                        <div class="step-text">Right-click on <code>FaceGate.app</code> inside Applications, then select <strong>Open</strong> from the context menu.</div>
+                                        <div class="step-text">You can now launch the app normally!</div>
                                     </div>
-                                    <div class="step-item">
-                                        <div class="step-number">4</div>
-                                        <div class="step-text">Acknowledge the macOS security dialog warnings (this is required to bypass Gatekeeper).</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Brew -->
+                        <div class="tab-content" id="tab-brew">
+                            <p class="tab-description">Install via Homebrew cask. Since the <code>--no-quarantine</code> flag is deprecated in newer versions of Homebrew, you will need to manually remove the quarantine flag after installing.</p>
+                            <div class="terminal-block">
+                                <div class="terminal-header">
+                                    <div class="terminal-dots">
+                                        <span class="dot red"></span>
+                                        <span class="dot yellow"></span>
+                                        <span class="dot green"></span>
                                     </div>
+                                    <span class="terminal-title">Terminal</span>
+                                </div>
+                                <div class="terminal-body">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-code">brew install --cask dweep-desai/tap/facegate</code>
+                                    <button class="btn-copy-tab" aria-label="Copy Command">
+                                        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        <svg class="icon-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="tab-post-install-note" style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                                After the Homebrew installation finishes, run this command in your Terminal:
+                            </p>
+                            <div class="terminal-block" style="margin-top: 10px;">
+                                <div class="terminal-header" style="display: none;"></div>
+                                <div class="terminal-body">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-code">xattr -cr /Applications/FaceGate.app</code>
+                                    <button class="btn-copy-tab" aria-label="Copy Command">
+                                        <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        <svg class="icon-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
