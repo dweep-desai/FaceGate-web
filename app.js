@@ -6,7 +6,32 @@ window.spaceScroll = {
     targetX: 0
 };
 
+// Global screenshot configurations
+const screenshots = [
+    {
+        image: "assets/screenshots/auth.png",
+        title: "Face Authentication",
+        description: "Unlock your macOS apps seamlessly using offline face recognition with no-peek auth overlay."
+    },
+    {
+        image: "assets/screenshots/menubar.png",
+        title: "System Menu Bar",
+        description: "Monitor security status and toggle protection quickly from the macOS menu bar."
+    },
+    {
+        image: "assets/screenshots/behaviour.png",
+        title: "Custom Lock Behaviors",
+        description: "Configure per-app options, sessions, lock delay timers, and custom gestures."
+    },
+    {
+        image: "assets/screenshots/auth_sett.png",
+        title: "Security & Fallbacks",
+        description: "Manage database encryption keys, liveness settings, and Touch ID fallbacks."
+    }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
+    initScreenshotsShowcase();
     initHorizontalScroll();
     initHeaderScroll();
     initMobileNav();
@@ -15,6 +40,93 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
     initStarfield();
 });
+
+// Pinning & showcase interaction states
+let activeShowcaseIndex = 0;
+let targetCarouselRotation = 0;
+let currentCarouselRotation = 0;
+
+// --- Screenshots Showcase Logic ---
+function initScreenshotsShowcase() {
+    const wheel = document.getElementById('carousel-wheel');
+    if (!wheel) return;
+    
+    // Generate markup
+    wheel.innerHTML = '';
+    screenshots.forEach((screen, index) => {
+        const card = document.createElement('div');
+        card.className = `screenshot-card ${index === 0 ? 'active' : ''}`;
+        if (index === 1) {
+            card.classList.add('portrait');
+        }
+        
+        card.setAttribute('data-index', index);
+        card.setAttribute('role', 'group');
+        card.setAttribute('aria-label', `Screenshot ${index + 1}: ${screen.title}`);
+        
+        const img = document.createElement('img');
+        img.src = screen.image;
+        img.alt = screen.title;
+        img.loading = 'lazy';
+        
+        card.appendChild(img);
+        wheel.appendChild(card);
+    });
+    
+    updateActiveShowcaseInfo(0);
+}
+
+function updateActiveShowcaseInfo(index) {
+    const titleEl = document.getElementById('showcase-active-title');
+    const descEl = document.getElementById('showcase-active-desc');
+    
+    if (titleEl && descEl && screenshots[index]) {
+        titleEl.textContent = screenshots[index].title;
+        descEl.textContent = screenshots[index].description;
+    }
+    
+    const cards = document.querySelectorAll('.screenshot-card');
+    cards.forEach((card, idx) => {
+        if (idx === index) {
+            card.classList.add('active');
+        } else {
+            card.classList.remove('active');
+        }
+    });
+}
+
+function updateWheelTransforms(rotationAngle) {
+    const cards = document.querySelectorAll('.screenshot-card');
+    const isMobile = window.innerWidth <= 768;
+    
+    // Circle math parameters (virtual rotation center below the screen)
+    const radius = isMobile ? 450 : 800; 
+    const angleStep = 48; // angle spacing between cards
+    
+    cards.forEach((card, idx) => {
+        const itemAngle = (idx * angleStep) + rotationAngle;
+        const rad = (itemAngle * Math.PI) / 180;
+        
+        // Circular tangent positioning:
+        const tx = Math.sin(rad) * radius;
+        // Curve downwards using cos formula relative to virtual center at (0, radius)
+        const ty = (1 - Math.cos(rad)) * radius;
+        
+        // Active visual scaling & blur formulas based on deviation from top-center (0 degrees)
+        const diff = Math.abs(itemAngle);
+        const focusFactor = Math.max(0, 1 - (diff / 48));
+        
+        const scale = 0.75 + (focusFactor * 0.25);
+        const opacity = 0.15 + (focusFactor * 0.85);
+        const blur = diff < 15 ? 0 : Math.min(4, (diff - 15) * 0.15);
+        
+        // Tilt matching circle curvature (rotate(itemAngle))
+        card.style.transform = `translate3d(${tx}px, ${ty}px, 0px) rotate(${itemAngle}deg) scale(${scale})`;
+        card.style.opacity = opacity;
+        card.style.filter = `blur(${blur}px)`;
+        card.style.zIndex = Math.round(focusFactor * 100);
+    });
+}
 
 // --- Horizontal Scroll Logic (Desktop Only) ---
 function initHorizontalScroll() {
@@ -44,7 +156,63 @@ function initHorizontalScroll() {
         
         // Calculate maximum horizontal travel distance
         const maxTranslate = track.scrollWidth - window.innerWidth;
-        targetTranslateX = progress * maxTranslate;
+        
+        // Segment boundaries mapping
+        const previewSection = document.getElementById('preview');
+        const sections = document.querySelectorAll('.horizontal-track > section');
+        
+        if (previewSection && maxTranslate > 0) {
+            const previewLeft = previewSection.offsetLeft;
+            const previewWidth = previewSection.offsetWidth;
+            
+            // Allocate 15% of the total vertical page scroll space to carousel rotation
+            const pinProgressStart = (previewLeft - 100) / maxTranslate;
+            const pinProgressDuration = 0.15;
+            const pinProgressEnd = pinProgressStart + pinProgressDuration;
+            
+            const angleStep = 48;
+            const totalRotationSpan = (screenshots.length - 1) * angleStep;
+            
+            if (progress >= pinProgressStart && progress <= pinProgressEnd) {
+                // Pin scroll movement horizontally inside the preview window slide
+                const relativeScrollProgress = (progress - pinProgressStart) / pinProgressDuration;
+                targetTranslateX = previewLeft;
+                
+                // Calculate rotation angle matching scroll progression step
+                targetCarouselRotation = -relativeScrollProgress * totalRotationSpan;
+                
+                // Calculate current active focused index
+                const activeIndex = Math.min(
+                    screenshots.length - 1,
+                    Math.max(0, Math.round(relativeScrollProgress * (screenshots.length - 1)))
+                );
+                if (activeIndex !== activeShowcaseIndex) {
+                    activeShowcaseIndex = activeIndex;
+                    updateActiveShowcaseInfo(activeIndex);
+                }
+            } else if (progress < pinProgressStart) {
+                // Normal translation before pinning zone
+                const ratio = progress / pinProgressStart;
+                targetTranslateX = ratio * previewLeft;
+                targetCarouselRotation = 0;
+                if (activeShowcaseIndex !== 0) {
+                    activeShowcaseIndex = 0;
+                    updateActiveShowcaseInfo(0);
+                }
+            } else {
+                // Normal translation after pinning zone
+                const postProgress = (progress - pinProgressEnd) / (1 - pinProgressEnd);
+                const remainingTranslate = maxTranslate - previewLeft;
+                targetTranslateX = previewLeft + (postProgress * remainingTranslate);
+                targetCarouselRotation = -totalRotationSpan;
+                if (activeShowcaseIndex !== screenshots.length - 1) {
+                    activeShowcaseIndex = screenshots.length - 1;
+                    updateActiveShowcaseInfo(screenshots.length - 1);
+                }
+            }
+        } else {
+            targetTranslateX = progress * maxTranslate;
+        }
     };
     
     // Physics loop to animate scrolling position smoothly
@@ -52,13 +220,18 @@ function initHorizontalScroll() {
         if (window.innerWidth > 768) {
             // Smoothly interpolate current position toward target position (lerp)
             currentTranslateX += (targetTranslateX - currentTranslateX) * 0.085;
+            currentCarouselRotation += (targetCarouselRotation - currentCarouselRotation) * 0.085;
             
             // Snap to target if extremely close to stop animation calculations
             if (Math.abs(targetTranslateX - currentTranslateX) < 0.05) {
                 currentTranslateX = targetTranslateX;
             }
+            if (Math.abs(targetCarouselRotation - currentCarouselRotation) < 0.05) {
+                currentCarouselRotation = targetCarouselRotation;
+            }
             
             track.style.transform = `translateX(-${currentTranslateX}px)`;
+            updateWheelTransforms(currentCarouselRotation);
             
             // Share translate amount with starfield animation
             window.spaceScroll.targetX = currentTranslateX;
@@ -79,6 +252,9 @@ function initHorizontalScroll() {
             window.spaceScroll.targetX = 0;
             currentTranslateX = 0;
             targetTranslateX = 0;
+            
+            // Keep rotation flat in mobile or hook into touch inputs
+            updateWheelTransforms(-180);
             
             // Reset top progress bar
             const progressBar = document.getElementById('progress-bar');
