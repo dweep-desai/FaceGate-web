@@ -1725,8 +1725,25 @@ html {
     }
 
     /* Centering Layouts on Mobile Viewports */
-    .section-header {
+    .section-header,
+    .showcase-content {
+        width: 100% !important;
+        max-width: 100% !important;
         text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .section-title,
+    .section-subtitle,
+    .showcase-title,
+    .showcase-description {
+        text-align: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
         margin-left: auto !important;
         margin-right: auto !important;
     }
