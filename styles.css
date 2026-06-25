@@ -1563,57 +1563,70 @@ html {
         transition: none !important;
     }
     
+    /* Revert all sections to simple vertical blocks — do NOT use flex here */
     .horizontal-track > section {
         width: 100% !important;
         height: auto !important;
         min-height: auto !important;
-        padding: 80px 20px 40px 20px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
+        padding: 60px 0 40px 0 !important;
+        display: block !important;
         overflow: visible !important;
-        text-align: center !important;
     }
-
-    .horizontal-track > section > .container,
-    .horizontal-track > section > .container.small-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-    }
-
+    
     .horizontal-track > .features-section {
         width: 100% !important;
     }
-
-    .features-grid {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-        margin-top: 30px !important;
-        width: 100% !important;
-    }
-
-    .feature-card {
-        height: auto !important;
-        width: 100% !important;
-        max-width: 480px !important;
-        margin: 0 auto !important;
-    }
-
+    
     .horizontal-track > .footer {
         width: 100% !important;
         height: auto !important;
         border-left: none !important;
         border-top: 1px solid var(--border-glass) !important;
-        padding: 60px 20px 40px 20px !important;
+        padding: 40px 0 !important;
+        display: block !important;
+    }
+
+    /* ========================================================
+       Center ALL non-hero content on mobile.
+       The hero already has its own centering rules above.
+       Key: .container has padding: 0 24px and margin: 0 auto.
+       We just need to center the content INSIDE each container.
+       ======================================================== */
+
+    /* Center text in every non-hero section */
+    .preview-section,
+    .demo-section,
+    .features-section,
+    .security-section,
+    .install-section {
+        text-align: center !important;
+    }
+
+    /* Make containers in non-hero sections flex-column centered */
+    .preview-section > .container,
+    .demo-section > .container,
+    .features-section > .container,
+    .security-section > .container,
+    .install-section > .container {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
+        text-align: center !important;
+        padding: 0 24px !important;
+    }
+
+    /* Section headers */
+    .section-header,
+    .showcase-content {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .section-title,
+    .section-subtitle,
+    .showcase-title,
+    .showcase-description {
+        text-align: center !important;
     }
 
     /* Mobile Carousel Adjustments */
@@ -1628,6 +1641,7 @@ html {
         height: 162.5px !important;
         margin-left: -130px !important;
         margin-top: -81.25px !important;
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, filter 0.4s ease, border-color 0.5s ease !important;
     }
 
     .screenshot-card.portrait {
@@ -1708,14 +1722,6 @@ html {
         -webkit-backdrop-filter: blur(20px) !important;
     }
 
-    .screenshot-card {
-        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, filter 0.4s ease, border-color 0.5s ease !important;
-    }
-
-    .feature-card {
-        padding: 24px !important;
-    }
-
     .terminal-block {
         max-width: 100% !important;
         width: 100% !important;
@@ -1744,47 +1750,36 @@ html {
         border-radius: 36px !important;
     }
 
-    /* Centering Layouts on Mobile Viewports */
-    .section-header,
-    .showcase-content {
-        width: 100% !important;
-        max-width: 100% !important;
-        text-align: center !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
+    /* ========================================================
+       Per-component centering rules for mobile
+       ======================================================== */
 
-    .section-title,
-    .section-subtitle,
-    .showcase-title,
-    .showcase-description {
-        text-align: center !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
+    /* Features */
     .features-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        margin-top: 30px !important;
+        width: 100% !important;
         justify-items: center !important;
     }
 
     .feature-card {
+        height: auto !important;
+        padding: 24px !important;
         align-items: center !important;
         text-align: center !important;
         width: 100% !important;
         max-width: 480px !important;
-        margin: 0 auto !important;
     }
 
+    /* Security */
     .security-card {
         padding: 24px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .security-grid {
         text-align: center !important;
     }
 
@@ -1796,10 +1791,7 @@ html {
         width: 100% !important;
     }
 
-    .security-title {
-        text-align: center !important;
-    }
-
+    .security-title,
     .security-desc {
         text-align: center !important;
     }
@@ -1811,26 +1803,16 @@ html {
         width: fit-content !important;
     }
 
-    .demo-section .container {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
-
+    /* Demo */
     .demo-video-wrapper {
         margin: 0 auto !important;
+        max-width: 100% !important;
     }
 
-    .install-section .container {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
-
+    /* Install */
     .install-tabs-wrapper {
         width: 100% !important;
-        max-width: 600px !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
         padding: 20px 16px !important;
     }
 
@@ -1855,16 +1837,14 @@ html {
         width: fit-content !important;
     }
 
-    .footer {
-        padding: 40px 0 !important;
-    }
-
+    /* Footer */
     .footer-container {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
         gap: 30px !important;
+        padding: 0 24px !important;
     }
 
     .footer-left {
@@ -1900,3 +1880,4 @@ html {
         padding-top: 20px !important;
     }
 }
+
