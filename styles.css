@@ -1214,7 +1214,7 @@ html {
     }
     
     .header.nav-active .nav {
-        height: 240px;
+        height: 320px;
         padding-top: 24px;
         border-bottom-color: var(--border-glass);
     }

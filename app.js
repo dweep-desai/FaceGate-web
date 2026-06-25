@@ -658,6 +658,13 @@ function initStarfield() {
     });
     
     function draw() {
+        if (window.innerWidth <= 768) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.style.display = 'none';
+            requestAnimationFrame(draw);
+            return;
+        }
+        canvas.style.display = 'block';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Interpolate mouse movements
