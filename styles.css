@@ -1723,4 +1723,143 @@ html {
     .hero-app-icon {
         border-radius: 36px !important;
     }
+
+    /* Centering Layouts on Mobile Viewports */
+    .section-header {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .features-grid {
+        justify-items: center !important;
+    }
+
+    .feature-card {
+        align-items: center !important;
+        text-align: center !important;
+        width: 100% !important;
+        max-width: 480px !important;
+        margin: 0 auto !important;
+    }
+
+    .security-card {
+        padding: 24px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .security-info {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .security-title {
+        text-align: center !important;
+    }
+
+    .security-desc {
+        text-align: center !important;
+    }
+
+    .security-list {
+        margin: 0 auto !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        width: fit-content !important;
+    }
+
+    .demo-section .container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .demo-video-wrapper {
+        margin: 0 auto !important;
+    }
+
+    .install-section .container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .install-tabs-wrapper {
+        width: 100% !important;
+        max-width: 600px !important;
+        margin: 0 auto !important;
+        padding: 20px 16px !important;
+    }
+
+    .tab-headers {
+        justify-content: center !important;
+    }
+
+    .tab-content {
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .manual-steps {
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .steps-list {
+        max-width: 100% !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        width: fit-content !important;
+    }
+
+    .footer {
+        padding: 40px 0 !important;
+    }
+
+    .footer-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 30px !important;
+    }
+
+    .footer-left {
+        align-items: center !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .footer-tagline {
+        margin: 0 auto !important;
+        text-align: center !important;
+    }
+
+    .footer-links {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 40px !important;
+        width: 100% !important;
+    }
+
+    .link-group {
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .footer-bottom {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+        margin-top: 30px !important;
+        padding-top: 20px !important;
+    }
 }
