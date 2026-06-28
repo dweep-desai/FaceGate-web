@@ -523,6 +523,7 @@ function initHorizontalScroll() {
 // --- Header Scroll State ---
 function initHeaderScroll() {
     const header = document.querySelector('.header');
+    const heroIcon = document.querySelector('.hero-app-icon');
     
     const handleScroll = () => {
         if (window.scrollY > 40) {
@@ -530,9 +531,103 @@ function initHeaderScroll() {
         } else {
             header.classList.remove('scrolled');
         }
+        
+        // Mobile logo transition logic
+        if (window.innerWidth <= 768 && heroIcon) {
+            const flyingLogo = document.getElementById('flying-logo');
+            const navLogoImg = header.querySelector('.logo-img');
+            const heroTitle = document.querySelector('.hero-title');
+            
+            // Get coordinates
+            const rect = heroIcon.getBoundingClientRect();
+            const startTop = rect.top + window.scrollY;
+            const startX = rect.left;
+            const startWidth = 192;
+            
+            const headerContainer = header.querySelector('.header-container');
+            const hRect = header.getBoundingClientRect();
+            const hcRect = headerContainer.getBoundingClientRect();
+            const hcStyle = window.getComputedStyle(headerContainer);
+            
+            const targetWidth = 38;
+            const targetX = hcRect.left + parseFloat(hcStyle.paddingLeft || '20');
+            const targetTop = hRect.top + (hRect.height - targetWidth) / 2;
+            
+            // Animation completes when hero title approaches the header
+            let titleDistance = 150;
+            if (heroTitle) {
+                const titleTop = heroTitle.getBoundingClientRect().top + window.scrollY;
+                titleDistance = titleTop - hRect.height - 20; // Complete 20px before title hits header
+            }
+            const animationDistance = Math.max(titleDistance, 100);
+            
+            let progress = window.scrollY / animationDistance;
+            progress = Math.max(0, Math.min(progress, 1));
+            
+            if (progress > 0 && progress < 1) {
+                header.classList.remove('show-logo');
+                header.classList.add('animating-logo');
+                heroIcon.style.opacity = '0';
+                
+                if (flyingLogo) {
+                    flyingLogo.style.display = 'block';
+                    
+                    const easeX = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    const easeY = progress; // Linear in screen-space feels smooth
+                    
+                    const currentX = startX + (targetX - startX) * easeX;
+                    const currentY = startTop + (targetTop - startTop) * easeY;
+                    const currentWidth = startWidth + (targetWidth - startWidth) * easeX;
+                    
+                    flyingLogo.style.left = `${currentX}px`;
+                    flyingLogo.style.top = `${currentY}px`;
+                    flyingLogo.style.width = `${currentWidth}px`;
+                    flyingLogo.style.height = `${currentWidth}px`;
+                }
+                
+                if (navLogoImg) {
+                    // Delay text push until the logo is actually arriving (last 40% of scroll)
+                    let textProgress = Math.max(0, (progress - 0.6) / 0.4);
+                    let easeText = textProgress < 0.5 ? 2 * textProgress * textProgress : 1 - Math.pow(-2 * textProgress + 2, 2) / 2;
+                    
+                    navLogoImg.style.maxWidth = `${targetWidth * easeText}px`;
+                    navLogoImg.style.marginRight = `${-12 * (1 - easeText)}px`;
+                }
+            } else if (progress === 1) {
+                header.classList.remove('animating-logo');
+                header.classList.add('show-logo');
+                heroIcon.style.opacity = '0';
+                if (flyingLogo) flyingLogo.style.display = 'none';
+                if (navLogoImg) {
+                    navLogoImg.style.maxWidth = '';
+                    navLogoImg.style.marginRight = '';
+                }
+            } else {
+                header.classList.remove('animating-logo');
+                header.classList.remove('show-logo');
+                heroIcon.style.opacity = '1';
+                if (flyingLogo) flyingLogo.style.display = 'none';
+                if (navLogoImg) {
+                    navLogoImg.style.maxWidth = '';
+                    navLogoImg.style.marginRight = '';
+                }
+            }
+        } else {
+            header.classList.remove('show-logo');
+            header.classList.remove('animating-logo');
+            if (heroIcon) heroIcon.style.opacity = '1';
+            const flyingLogo = document.getElementById('flying-logo');
+            if (flyingLogo) flyingLogo.style.display = 'none';
+            const navLogoImg = header.querySelector('.logo-img');
+            if (navLogoImg) {
+                navLogoImg.style.maxWidth = '';
+                navLogoImg.style.marginRight = '';
+            }
+        }
     };
     
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
     handleScroll();
 }
 
