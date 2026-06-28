@@ -121,19 +121,20 @@ html {
 .header {
     position: fixed;
     top: 0;
+    padding-top: env(safe-area-inset-top);
     left: 0;
     width: 100%;
-    height: 80px;
+    height: calc(80px + env(safe-area-inset-top));
     z-index: 100;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border-bottom: none;
+    border-bottom: 1px solid transparent;
     transition: var(--transition-smooth);
 }
 
 .header.scrolled {
-    height: 70px;
+    height: calc(80px + env(safe-area-inset-top));
     background: transparent;
     border-bottom-color: transparent;
 }
@@ -187,10 +188,38 @@ html {
     display: flex;
     align-items: center;
     gap: 6px;
+    position: relative;
 }
 
 .nav-link:hover {
     color: var(--text-primary);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.nav-link.active {
+    color: var(--text-primary);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+@media (min-width: 769px) {
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: var(--text-primary);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        animation: fadeInDot 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+}
+
+@keyframes fadeInDot {
+    from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    to { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 
 .nav-link.github-link {
@@ -1186,6 +1215,47 @@ html {
 }
 
 @media (max-width: 768px) {
+    .scroll-progress-container {
+        display: none;
+    }
+    
+    .header {
+        height: calc(60px + env(safe-area-inset-top));
+        padding-top: env(safe-area-inset-top);
+        background: rgba(4, 3, 6, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid transparent;
+    }
+    
+    .header .logo-img {
+        max-width: 0;
+        margin-right: -12px; /* Cancels out the 12px gap in .logo */
+        opacity: 0;
+        transform: scale(0.5);
+        transition: max-width 0.4s ease, margin-right 0.4s ease, opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+    }
+    
+    .header.animating-logo .logo-img {
+        opacity: 0 !important;
+        transition: none !important;
+    }
+    
+    .header.show-logo .logo-img {
+        max-width: 38px;
+        margin-right: 0;
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+    
+    .header.scrolled {
+        height: 60px;
+        background: rgba(4, 3, 6, 0.85);
+        border-bottom: 1px solid var(--border-glass);
+    }
+
     .section {
         padding: 60px 0;
     }
@@ -1197,11 +1267,12 @@ html {
     
     .nav {
         position: fixed;
-        top: 80px;
+        top: 60px;
         left: 0;
         width: 100%;
-        height: 0;
-        background: var(--bg-primary);
+        height: auto;
+        max-height: 0;
+        background: rgba(4, 3, 6, 0.95);
         border-bottom: 1px solid transparent;
         flex-direction: column;
         justify-content: flex-start;
@@ -1211,12 +1282,14 @@ html {
         overflow: hidden;
         transition: var(--transition-smooth);
         backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
     
     .header.nav-active .nav {
-        height: 320px;
+        max-height: 500px;
         padding-top: 24px;
-        border-bottom-color: var(--border-glass);
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-glass);
     }
     
     .header.nav-active .bar:nth-child(1) {
@@ -1225,6 +1298,7 @@ html {
     
     .header.nav-active .bar:nth-child(2) {
         opacity: 0;
+        transform: scaleX(0);
     }
     
     .header.nav-active .bar:nth-child(3) {
@@ -1343,7 +1417,7 @@ html {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 40px;
+        padding: calc(80px + env(safe-area-inset-top)) 40px 0 40px;
         overflow: hidden;
         position: relative;
         box-sizing: border-box;
@@ -1373,7 +1447,6 @@ html {
     }
     
     .preview-section {
-        padding-top: 100px !important;
         box-sizing: border-box;
     }
 
@@ -1387,7 +1460,6 @@ html {
     }
 
     .demo-section {
-        padding-top: 100px !important;
         box-sizing: border-box;
     }
 
@@ -1428,8 +1500,7 @@ html {
         height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        padding-top: 120px;
+        justify-content: center;
         box-sizing: border-box;
      }
     
@@ -1625,6 +1696,7 @@ html {
     .hero-container {
         padding-left: 24px !important;
         padding-right: 24px !important;
+        flex-direction: column-reverse !important;
     }
 
     /* Force all direct children of these containers to take full width */
@@ -1698,7 +1770,7 @@ html {
 
     /* Carousel */
     .carousel-viewport {
-        height: 320px !important;
+        height: 220px !important;
         width: 100% !important;
         margin-top: 20px;
     }
@@ -1723,7 +1795,7 @@ html {
         align-items: center;
         justify-content: center;
         position: absolute;
-        top: 55%;
+        top: 50%;
         transform: translateY(-50%);
         width: 38px;
         height: 38px;

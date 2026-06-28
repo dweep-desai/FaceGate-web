@@ -94,8 +94,10 @@ function initScreenshotsShowcase() {
         }
         dotsContainer.innerHTML = '';
         
+        const carouselViewport = showcaseContainer.querySelector('.carousel-viewport');
+
         // Add manual navigation arrows
-        let prevBtn = showcaseContainer.querySelector('.carousel-nav-btn.prev');
+        let prevBtn = carouselViewport.querySelector('.carousel-nav-btn.prev');
         if (!prevBtn) {
             prevBtn = document.createElement('button');
             prevBtn.className = 'carousel-nav-btn prev';
@@ -108,10 +110,10 @@ function initScreenshotsShowcase() {
                     targetCarouselRotation = -activeShowcaseIndex * 38;
                 }
             });
-            showcaseContainer.appendChild(prevBtn);
+            carouselViewport.appendChild(prevBtn);
         }
         
-        let nextBtn = showcaseContainer.querySelector('.carousel-nav-btn.next');
+        let nextBtn = carouselViewport.querySelector('.carousel-nav-btn.next');
         if (!nextBtn) {
             nextBtn = document.createElement('button');
             nextBtn.className = 'carousel-nav-btn next';
@@ -124,7 +126,7 @@ function initScreenshotsShowcase() {
                     targetCarouselRotation = -activeShowcaseIndex * 38;
                 }
             });
-            showcaseContainer.appendChild(nextBtn);
+            carouselViewport.appendChild(nextBtn);
         }
 
         screenshots.forEach((_, index) => {
@@ -401,26 +403,39 @@ function initHorizontalScroll() {
     
     // Update active nav link based on horizontal scroll position
     const updateActiveNavLink = (translateX) => {
-        const sections = document.querySelectorAll('.horizontal-track > section');
+        const isDesktop = window.innerWidth > 768;
+        const sections = isDesktop 
+            ? document.querySelectorAll('.horizontal-track > section')
+            : document.querySelectorAll('main > section, .horizontal-track > section');
+            
         const navLinks = document.querySelectorAll('.nav-link');
-        
         let activeSectionId = '';
         
         sections.forEach(section => {
-            const sectionLeft = section.offsetLeft;
-            const sectionWidth = section.offsetWidth;
+            const id = section.getAttribute('id');
+            if (!id) return;
             
-            // If the section is currently active/visible in the main viewport area
-            if (translateX >= sectionLeft - window.innerWidth / 3 && 
-                translateX < sectionLeft + sectionWidth - window.innerWidth / 3) {
-                activeSectionId = section.getAttribute('id');
+            if (isDesktop) {
+                const sectionLeft = section.offsetLeft;
+                const sectionWidth = section.offsetWidth;
+                if (translateX >= sectionLeft - window.innerWidth / 3 && 
+                    translateX < sectionLeft + sectionWidth - window.innerWidth / 3) {
+                    activeSectionId = id;
+                }
+            } else {
+                const rect = section.getBoundingClientRect();
+                const headerOffset = 80;
+                // Check if section is currently occupying the main view area
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= headerOffset + 100) {
+                    activeSectionId = id;
+                }
             }
         });
         
         navLinks.forEach(link => {
             link.classList.remove('active');
             const href = link.getAttribute('href');
-            if (href === `#${activeSectionId}`) {
+            if (activeSectionId && href === `#${activeSectionId}`) {
                 link.classList.add('active');
             }
         });
@@ -452,8 +467,28 @@ function initHorizontalScroll() {
                             const maxTranslate = track.scrollWidth - window.innerWidth;
                             const scrollHeight = main.scrollHeight - window.innerHeight;
                             
+                            let targetProgress = 0;
+                            const previewSection = document.getElementById('preview');
+                            if (previewSection && maxTranslate > 0) {
+                                const previewLeft = previewSection.offsetLeft;
+                                const pinProgressStart = (previewLeft - 100) / maxTranslate;
+                                const pinProgressEnd = pinProgressStart + 0.15;
+                                const remainingTranslate = maxTranslate - previewLeft;
+                                
+                                if (sectionLeft < previewLeft) {
+                                    targetProgress = (sectionLeft / previewLeft) * pinProgressStart;
+                                } else if (sectionLeft === previewLeft) {
+                                    targetProgress = pinProgressStart;
+                                } else {
+                                    const postProgress = (sectionLeft - previewLeft) / remainingTranslate;
+                                    targetProgress = (postProgress * (1 - pinProgressEnd)) + pinProgressEnd;
+                                }
+                            } else {
+                                targetProgress = sectionLeft / maxTranslate;
+                            }
+                            
                             // Map horizontal offset back to vertical scroll target
-                            const targetScrollY = (sectionLeft / maxTranslate) * scrollHeight;
+                            const targetScrollY = targetProgress * scrollHeight;
                             
                             window.scrollTo({
                                 top: targetScrollY,
@@ -488,6 +523,7 @@ function initHorizontalScroll() {
 // --- Header Scroll State ---
 function initHeaderScroll() {
     const header = document.querySelector('.header');
+    const heroIcon = document.querySelector('.hero-app-icon');
     
     const handleScroll = () => {
         if (window.scrollY > 40) {
@@ -495,9 +531,103 @@ function initHeaderScroll() {
         } else {
             header.classList.remove('scrolled');
         }
+        
+        // Mobile logo transition logic
+        if (window.innerWidth <= 768 && heroIcon) {
+            const flyingLogo = document.getElementById('flying-logo');
+            const navLogoImg = header.querySelector('.logo-img');
+            const heroTitle = document.querySelector('.hero-title');
+            
+            // Get coordinates
+            const rect = heroIcon.getBoundingClientRect();
+            const startTop = rect.top + window.scrollY;
+            const startX = rect.left;
+            const startWidth = 192;
+            
+            const headerContainer = header.querySelector('.header-container');
+            const hRect = header.getBoundingClientRect();
+            const hcRect = headerContainer.getBoundingClientRect();
+            const hcStyle = window.getComputedStyle(headerContainer);
+            
+            const targetWidth = 38;
+            const targetX = hcRect.left + parseFloat(hcStyle.paddingLeft || '20');
+            const targetTop = hRect.top + (hRect.height - targetWidth) / 2;
+            
+            // Animation completes when hero title approaches the header
+            let titleDistance = 150;
+            if (heroTitle) {
+                const titleTop = heroTitle.getBoundingClientRect().top + window.scrollY;
+                titleDistance = titleTop - hRect.height - 20; // Complete 20px before title hits header
+            }
+            const animationDistance = Math.max(titleDistance, 100);
+            
+            let progress = window.scrollY / animationDistance;
+            progress = Math.max(0, Math.min(progress, 1));
+            
+            if (progress > 0 && progress < 1) {
+                header.classList.remove('show-logo');
+                header.classList.add('animating-logo');
+                heroIcon.style.opacity = '0';
+                
+                if (flyingLogo) {
+                    flyingLogo.style.display = 'block';
+                    
+                    const easeX = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    const easeY = progress; // Linear in screen-space feels smooth
+                    
+                    const currentX = startX + (targetX - startX) * easeX;
+                    const currentY = startTop + (targetTop - startTop) * easeY;
+                    const currentWidth = startWidth + (targetWidth - startWidth) * easeX;
+                    
+                    flyingLogo.style.left = `${currentX}px`;
+                    flyingLogo.style.top = `${currentY}px`;
+                    flyingLogo.style.width = `${currentWidth}px`;
+                    flyingLogo.style.height = `${currentWidth}px`;
+                }
+                
+                if (navLogoImg) {
+                    // Delay text push until the logo is actually arriving (last 40% of scroll)
+                    let textProgress = Math.max(0, (progress - 0.6) / 0.4);
+                    let easeText = textProgress < 0.5 ? 2 * textProgress * textProgress : 1 - Math.pow(-2 * textProgress + 2, 2) / 2;
+                    
+                    navLogoImg.style.maxWidth = `${targetWidth * easeText}px`;
+                    navLogoImg.style.marginRight = `${-12 * (1 - easeText)}px`;
+                }
+            } else if (progress === 1) {
+                header.classList.remove('animating-logo');
+                header.classList.add('show-logo');
+                heroIcon.style.opacity = '0';
+                if (flyingLogo) flyingLogo.style.display = 'none';
+                if (navLogoImg) {
+                    navLogoImg.style.maxWidth = '';
+                    navLogoImg.style.marginRight = '';
+                }
+            } else {
+                header.classList.remove('animating-logo');
+                header.classList.remove('show-logo');
+                heroIcon.style.opacity = '1';
+                if (flyingLogo) flyingLogo.style.display = 'none';
+                if (navLogoImg) {
+                    navLogoImg.style.maxWidth = '';
+                    navLogoImg.style.marginRight = '';
+                }
+            }
+        } else {
+            header.classList.remove('show-logo');
+            header.classList.remove('animating-logo');
+            if (heroIcon) heroIcon.style.opacity = '1';
+            const flyingLogo = document.getElementById('flying-logo');
+            if (flyingLogo) flyingLogo.style.display = 'none';
+            const navLogoImg = header.querySelector('.logo-img');
+            if (navLogoImg) {
+                navLogoImg.style.maxWidth = '';
+                navLogoImg.style.marginRight = '';
+            }
+        }
     };
     
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
     handleScroll();
 }
 
@@ -509,7 +639,8 @@ function initMobileNav() {
     
     if (!toggle || !header) return;
     
-    toggle.addEventListener('click', () => {
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         header.classList.toggle('nav-active');
     });
     
@@ -517,6 +648,13 @@ function initMobileNav() {
         link.addEventListener('click', () => {
             header.classList.remove('nav-active');
         });
+    });
+
+    document.addEventListener('click', (e) => {
+        const isClickInside = header.contains(e.target);
+        if (!isClickInside && header.classList.contains('nav-active')) {
+            header.classList.remove('nav-active');
+        }
     });
 }
 
